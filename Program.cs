@@ -127,14 +127,13 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-
     
     var context = services.GetRequiredService<InventoryContext>();
-
-   
+    
     await context.Database.MigrateAsync();
-
- 
+    
+    await DataSeeder.SeedSampleDataAsync(context);
+    
     await RoleSeeder.SeedRolesAndAdminAsync(services);
 }
 
