@@ -14,7 +14,7 @@ public class ProductRepository : IProductRepository
         _context = context;
     }
 
-    // Get all products (including category and supplier)
+ 
     public async Task<IEnumerable<Product>> GetAllAsync()
     {
         var products = await _context.Products
@@ -25,7 +25,7 @@ public class ProductRepository : IProductRepository
         return products;
     }
 
-    // Get a product by ID
+   
     public async Task<Product?> GetByIdAsync(int id)
     {
         var product = await _context.Products
@@ -36,7 +36,7 @@ public class ProductRepository : IProductRepository
         return product;
     }
 
-    // Add a new product
+    
     public async Task<Product> AddAsync(Product product)
     {
         _context.Products.Add(product);
@@ -44,7 +44,7 @@ public class ProductRepository : IProductRepository
         return product;
     }
 
-    // Update an existing product
+  
     public async Task<Product> UpdateAsync(Product product)
     {
         _context.Entry(product).State = EntityState.Modified;
@@ -52,7 +52,7 @@ public class ProductRepository : IProductRepository
         return product;
     }
 
-    // Delete a product by ID
+ 
     public async Task<bool> DeleteAsync(int id)
     {
         var product = await _context.Products.FindAsync(id);

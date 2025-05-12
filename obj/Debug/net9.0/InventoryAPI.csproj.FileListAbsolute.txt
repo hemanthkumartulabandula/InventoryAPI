@@ -169,3 +169,5 @@
 /Users/hemanth/Desktop/InventoryMS/InventoryAPI/InventoryAPI/obj/Debug/net9.0/InventoryAPI.pdb
 /Users/hemanth/Desktop/InventoryMS/InventoryAPI/InventoryAPI/obj/Debug/net9.0/InventoryAPI.genruntimeconfig.cache
 /Users/hemanth/Desktop/InventoryMS/InventoryAPI/InventoryAPI/obj/Debug/net9.0/ref/InventoryAPI.dll
+/Users/hemanth/Desktop/InventoryMS/InventoryAPI/InventoryAPI/bin/Debug/net9.0/Newtonsoft.Json.dll
+/Users/hemanth/Desktop/InventoryMS/InventoryAPI/InventoryAPI/bin/Debug/net9.0/System.Net.WebSockets.WebSocketProtocol.dll

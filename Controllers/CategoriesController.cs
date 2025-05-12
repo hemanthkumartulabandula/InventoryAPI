@@ -3,6 +3,9 @@ using InventoryAPI.Models;
 using InventoryAPI.Repositories.Interfaces;
 using InventoryAPI.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+using InventoryAPI.Hubs;
+
 
 namespace InventoryAPI.Controllers;
 
@@ -12,10 +15,12 @@ namespace InventoryAPI.Controllers;
 public class CategoriesController : ControllerBase
 {
     private readonly ICategoryRepository _repo;
+    private readonly IHubContext<InventoryHub> _hub;
 
-    public CategoriesController(ICategoryRepository repo)
+    public CategoriesController(ICategoryRepository repo, IHubContext<InventoryHub> hub)
     {
         _repo = repo;
+        _hub = hub;
     }
 
     [HttpGet]
@@ -42,10 +47,18 @@ public class CategoriesController : ControllerBase
         };
 
         var created = await _repo.AddAsync(category);
+        
+        await _hub.Clients.All.SendAsync("CategoryAdded", new {
+            created.CategoryId,
+            created.Name
+        });
+
+        
         return CreatedAtAction(nameof(GetById), new { id = created.CategoryId }, created);
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(int id, CategoryDto dto)
     {
         if (id != dto.CategoryId) return BadRequest();
@@ -56,14 +69,24 @@ public class CategoriesController : ControllerBase
         category.Name = dto.Name;
 
         await _repo.UpdateAsync(category);
+        
+        await _hub.Clients.All.SendAsync("CategoryUpdated", new {
+            category.CategoryId,
+            category.Name
+        });
+
         return NoContent();
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var success = await _repo.DeleteAsync(id);
         if (!success) return NotFound();
+        
+        await _hub.Clients.All.SendAsync("CategoryDeleted", id);
+        
         return NoContent();
     }
 }

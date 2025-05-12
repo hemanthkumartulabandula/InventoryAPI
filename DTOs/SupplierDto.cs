@@ -2,7 +2,7 @@ namespace InventoryAPI.DTOs;
 
 public class SupplierDto
 {
-    public int SupplierId { get; set; }  // Optional on create
+    public int SupplierId { get; set; } 
     
     public string Name { get; set; }
     

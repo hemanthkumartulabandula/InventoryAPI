@@ -3,6 +3,9 @@ using InventoryAPI.Models;
 using InventoryAPI.Repositories.Interfaces;
 using InventoryAPI.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+using InventoryAPI.Hubs;
+
 
 namespace InventoryAPI.Controllers;
 
@@ -12,13 +15,15 @@ namespace InventoryAPI.Controllers;
 public class ProductsController : ControllerBase
 {
     private readonly IProductRepository _repo;
+    private readonly IHubContext<InventoryHub> _hub;
 
-    public ProductsController(IProductRepository repo)
+    public ProductsController(IProductRepository repo, IHubContext<InventoryHub> hub)
     {
         _repo = repo;
+        _hub = hub;
     }
 
-    // GET all products using ProductReadDto
+  
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ProductReadDto>>> GetAll()
     {
@@ -34,11 +39,13 @@ public class ProductsController : ControllerBase
             CategoryName = p.Category?.Name,
             SupplierName = p.Supplier?.Name
         });
+        
+        await _hub.Clients.All.SendAsync("TestConnection", "Backend is live!");
 
         return Ok(dtoList);
     }
 
-    // GET product by ID using ProductReadDto
+    
     [HttpGet("{id}")]
     public async Task<ActionResult<ProductReadDto>> GetById(int id)
     {
@@ -59,7 +66,7 @@ public class ProductsController : ControllerBase
         return Ok(dto);
     }
 
-    // POST still uses ProductDto
+ 
     [HttpPost]
     public async Task<ActionResult<Product>> Create(ProductDto dto)
     {
@@ -74,11 +81,22 @@ public class ProductsController : ControllerBase
         };
 
         var created = await _repo.AddAsync(product);
+        
+        await _hub.Clients.All.SendAsync("ProductAdded", new
+        {
+            created.ProductId, 
+            created.Name,
+            created.Description,
+            created.Quantity,
+            created.Price
+        });
+        
         return CreatedAtAction(nameof(GetById), new { id = created.ProductId }, created);
     }
 
-    // PUT uses ProductDto
+
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(int id, ProductDto dto)
     {
         if (id != dto.ProductId) return BadRequest();
@@ -94,15 +112,27 @@ public class ProductsController : ControllerBase
         product.SupplierId = dto.SupplierId;
 
         await _repo.UpdateAsync(product);
+        await _hub.Clients.All.SendAsync("ProductUpdated", new {
+            product.ProductId,
+            product.Name,
+            product.Description,
+            product.Quantity,
+            product.Price
+        });
+
         return NoContent();
     }
 
-    // DELETE remains the same
+    
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var success = await _repo.DeleteAsync(id);
         if (!success) return NotFound();
+        
+        await _hub.Clients.All.SendAsync("ProductDeleted", id);
+        
         return NoContent();
     }
 }

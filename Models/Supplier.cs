@@ -10,6 +10,6 @@ public class Supplier
     
     public string Phone { get; set; }
 
-    // One-to-many: One supplier → many products
+    
     public ICollection<Product> Products { get; set; }
 }

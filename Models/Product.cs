@@ -12,11 +12,11 @@ public class Product
     
     public decimal Price { get; set; }
 
-    // Foreign key to Category
+    
     public int CategoryId { get; set; }
     public Category Category { get; set; }
 
-    // Foreign key to Supplier
+   
     public int SupplierId { get; set; }
     public Supplier Supplier { get; set; }
 }

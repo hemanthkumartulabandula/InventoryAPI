@@ -13,19 +13,17 @@ public class SupplierRepository : ISupplierRepository
         _context = context;
     }
 
-    // Get all suppliers
     public async Task<IEnumerable<Supplier>> GetAllAsync()
     {
         return await _context.Suppliers.ToListAsync();
     }
 
-    // Get a supplier by ID
+    
     public async Task<Supplier?> GetByIdAsync(int id)
     {
         return await _context.Suppliers.FindAsync(id);
     }
-
-    // Add a new supplier
+    
     public async Task<Supplier> AddAsync(Supplier supplier)
     {
         _context.Suppliers.Add(supplier);
@@ -33,7 +31,7 @@ public class SupplierRepository : ISupplierRepository
         return supplier;
     }
 
-    // Update an existing supplier
+   
     public async Task<Supplier> UpdateAsync(Supplier supplier)
     {
         _context.Entry(supplier).State = EntityState.Modified;
@@ -41,7 +39,7 @@ public class SupplierRepository : ISupplierRepository
         return supplier;
     }
 
-    // Delete a supplier by ID
+  
     public async Task<bool> DeleteAsync(int id)
     {
         var supplier = await _context.Suppliers.FindAsync(id);

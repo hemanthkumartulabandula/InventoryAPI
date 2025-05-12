@@ -2,7 +2,7 @@ namespace InventoryAPI.DTOs;
 
 public class ProductDto
 {
-    public int ProductId { get; set; }   // Ignored by DB during creation
+    public int ProductId { get; set; }   
     
     public string Name { get; set; }
     
@@ -12,6 +12,6 @@ public class ProductDto
     
     public decimal Price { get; set; }
 
-    public int CategoryId { get; set; }  // Foreign key
-    public int SupplierId { get; set; }  // Foreign key
+    public int CategoryId { get; set; }  // F key
+    public int SupplierId { get; set; }  // F key
 }

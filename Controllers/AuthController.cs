@@ -39,10 +39,15 @@ public class AuthController : ControllerBase
         var user = await _userManager.FindByEmailAsync(dto.Email);
         if (user != null && await _userManager.CheckPasswordAsync(user, dto.Password))
         {
+            var roles = await _userManager.GetRolesAsync(user);
+
             var claims = new List<Claim>
             {
                 new Claim("email", user.Email!)
             };
+
+            
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -58,4 +63,5 @@ public class AuthController : ControllerBase
 
         return Unauthorized("Invalid login attempt.");
     }
+
 }

@@ -3,6 +3,9 @@ using InventoryAPI.Models;
 using InventoryAPI.Repositories.Interfaces;
 using InventoryAPI.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+using InventoryAPI.Hubs;
+
 
 namespace InventoryAPI.Controllers;
 
@@ -12,10 +15,12 @@ namespace InventoryAPI.Controllers;
 public class SuppliersController : ControllerBase
 {
     private readonly ISupplierRepository _repo;
-
-    public SuppliersController(ISupplierRepository repo)
+    private readonly IHubContext<InventoryHub> _hub;
+    
+    public SuppliersController(ISupplierRepository repo, IHubContext<InventoryHub> hub)
     {
         _repo = repo;
+        _hub = hub;
     }
 
     [HttpGet]
@@ -44,10 +49,16 @@ public class SuppliersController : ControllerBase
         };
 
         var created = await _repo.AddAsync(supplier);
+        await _hub.Clients.All.SendAsync("SupplierAdded", new {
+            created.SupplierId,
+            created.Name
+        });
+
         return CreatedAtAction(nameof(GetById), new { id = created.SupplierId }, created);
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(int id, SupplierDto dto)
     {
         if (id != dto.SupplierId) return BadRequest();
@@ -60,14 +71,23 @@ public class SuppliersController : ControllerBase
         supplier.Phone = dto.Phone;
 
         await _repo.UpdateAsync(supplier);
+        await _hub.Clients.All.SendAsync("SupplierUpdated", new {
+            supplier.SupplierId,
+            supplier.Name
+        });
+
         return NoContent();
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var success = await _repo.DeleteAsync(id);
         if (!success) return NotFound();
+        
+        await _hub.Clients.All.SendAsync("SupplierDeleted", id);
+
         return NoContent();
     }
 }

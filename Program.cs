@@ -8,23 +8,25 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using System.Text.Json.Serialization;
+using InventoryAPI.Hubs;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Load JWT settings from appsettings.json
+
 var jwtKey = builder.Configuration["Jwt:Key"];
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 
-// Setup EF Core + Identity
+
 builder.Services.AddDbContext<InventoryContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<InventoryContext>()
     .AddDefaultTokenProviders();
 
-// JWT Authentication setup
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -43,29 +45,34 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Enable CORS (for Angular frontend)
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        policy.WithOrigins("http://localhost:4200", 
+                "https://verdant-shortbread-0eaeab.netlify.app"
+                ) 
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials(); 
     });
 });
 
-// Register repositories
+
+
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
 
-// Add controllers and handle circular references
+
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
-// Configure Swagger with JWT "Authorize" support
+builder.Services.AddSignalR();
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -99,7 +106,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-// Enable Swagger
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -107,11 +114,28 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = "";
 });
 
-// Enable middleware
+
 app.UseCors();
 app.UseHttpsRedirection();
-app.UseAuthentication(); // IMPORTANT: must come before UseAuthorization
+app.UseAuthentication(); 
 app.UseAuthorization();
 
+app.MapHub<InventoryHub>("/hubs/inventory");
+
+
 app.MapControllers();
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    
+    var context = services.GetRequiredService<InventoryContext>();
+
+   
+    await context.Database.MigrateAsync();
+
+ 
+    await RoleSeeder.SeedRolesAndAdminAsync(services);
+}
+
 app.Run();
