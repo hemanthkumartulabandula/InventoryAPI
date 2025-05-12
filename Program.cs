@@ -36,6 +36,9 @@ var jwtIssuer = builder.Configuration["Jwt:Issuer"];
      connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
  }
 
+
+ Console.WriteLine("👉 Using DB connection: " + connectionString);
+
  builder.Services.AddDbContext<InventoryContext>(options =>
      options.UseNpgsql(connectionString));
 
