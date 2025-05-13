@@ -30,7 +30,7 @@ var jwtIssuer = builder.Configuration["Jwt:Issuer"];
      var userInfo = uri.UserInfo.Split(':');
 
      var host = uri.Host;
-     var port = uri.Port == -1 ? 5432 : uri.Port; // ✅ FIX: use default port 5432 if missing
+     var port = uri.Port == -1 ? 5432 : uri.Port; 
 
      connectionString =
          $"Host={host};Port={port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
@@ -42,9 +42,9 @@ var jwtIssuer = builder.Configuration["Jwt:Issuer"];
  }
 
 
- Console.WriteLine("👉 Using DB connection: " + connectionString);
+ Console.WriteLine("Using DB connection: " + connectionString);
 
- Console.WriteLine($"✅ Final connection string being used: {connectionString}");
+ Console.WriteLine($"Final connection string being used: {connectionString}");
 
  builder.Services.AddDbContext<InventoryContext>(options =>
      options.UseNpgsql(connectionString)
@@ -169,13 +169,13 @@ using (var scope = app.Services.CreateScope())
 
     if (pendingMigrations.Any())
     {
-        Console.WriteLine("📦 Applying EF Core migrations...");
+        Console.WriteLine("Appllying EF Core migrtaions...");
         await context.Database.MigrateAsync();
-        Console.WriteLine("✅ Migrations applied.");
+        Console.WriteLine("Migrations applied.");
     }
     else
     {
-        Console.WriteLine("✔️ No pending migrations. Database is up-to-date.");
+        Console.WriteLine("No pending migrations. Database is up-to-date.");
     }
 
 
