@@ -29,8 +29,13 @@ var jwtIssuer = builder.Configuration["Jwt:Issuer"];
      var uri = new Uri(databaseUrl);
      var userInfo = uri.UserInfo.Split(':');
 
-     connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+     var host = uri.Host;
+     var port = uri.Port == -1 ? 5432 : uri.Port; // ✅ FIX: use default port 5432 if missing
+
+     connectionString =
+         $"Host={host};Port={port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
  }
+
  else
  {
      connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
