@@ -1,0 +1,8 @@
+bin/
+obj/
+*.db
+*.user
+*.vs
+.vscode/
+Dockerfile
+README.md
