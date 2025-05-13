@@ -3,17 +3,20 @@ using System;
 using InventoryAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace InventoryAPI.Data.Migrations
+namespace InventoryAPI.Migrations
 {
     [DbContext(typeof(InventoryContext))]
-    partial class InventoryContextModelSnapshot : ModelSnapshot
+    [Migration("20250513013157_FullCleanInit")]
+    partial class FullCleanInit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

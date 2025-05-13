@@ -4,10 +4,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace InventoryAPI.Data.Migrations
+namespace InventoryAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class FullCleanInit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
