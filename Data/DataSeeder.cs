@@ -1,4 +1,5 @@
 using InventoryAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace InventoryAPI.Data
 {
@@ -34,50 +35,49 @@ namespace InventoryAPI.Data
                 await context.SaveChangesAsync();
             }
 
-            if (!context.Products.Any())
+            
+            var electronics = await context.Categories.FirstOrDefaultAsync(c => c.Name == "Electronics");
+            var food = await context.Categories.FirstOrDefaultAsync(c => c.Name == "Food Items");
+            var sports = await context.Categories.FirstOrDefaultAsync(c => c.Name == "Sporting Goods");
+
+            var hp = await context.Suppliers.FirstOrDefaultAsync(s => s.Name == "HP");
+            var nestle = await context.Suppliers.FirstOrDefaultAsync(s => s.Name == "Nestle");
+            var adidas = await context.Suppliers.FirstOrDefaultAsync(s => s.Name == "Adidas");
+
+            if (!context.Products.Any() &&
+                electronics != null && food != null && sports != null &&
+                hp != null && nestle != null && adidas != null)
             {
-                var electronics = context.Categories.FirstOrDefault(c => c.Name == "Electronics");
-                var food = context.Categories.FirstOrDefault(c => c.Name == "Food Items");
-                var sports = context.Categories.FirstOrDefault(c => c.Name == "Sporting Goods");
-
-                var hp = context.Suppliers.FirstOrDefault(s => s.Name == "HP");
-                var nestle = context.Suppliers.FirstOrDefault(s => s.Name == "Nestle");
-                var adidas = context.Suppliers.FirstOrDefault(s => s.Name == "Adidas");
-
-                if (electronics != null && food != null && sports != null &&
-                    hp != null && nestle != null && adidas != null)
-                {
-                    context.Products.AddRange(
-                        new Product
-                        {
-                            Name = "HP Laptop",
-                            Description = "Pavilion 15, 8GB RAM",
-                            Quantity = 20,
-                            Price = 580,
-                            CategoryId = electronics.CategoryId,
-                            SupplierId = hp.SupplierId
-                        },
-                        new Product
-                        {
-                            Name = "Chocolate Bar",
-                            Description = "Nestle Crunch 50g",
-                            Quantity = 100,
-                            Price = 1.50m,
-                            CategoryId = food.CategoryId,
-                            SupplierId = nestle.SupplierId
-                        },
-                        new Product
-                        {
-                            Name = "Soccer Ball",
-                            Description = "FIFA-approved size 5",
-                            Quantity = 30,
-                            Price = 25,
-                            CategoryId = sports.CategoryId,
-                            SupplierId = adidas.SupplierId
-                        }
-                    );
-                    await context.SaveChangesAsync();
-                }
+                context.Products.AddRange(
+                    new Product
+                    {
+                        Name = "HP Laptop",
+                        Description = "Pavilion 15, 8GB RAM",
+                        Quantity = 20,
+                        Price = 580,
+                        CategoryId = electronics.CategoryId,
+                        SupplierId = hp.SupplierId
+                    },
+                    new Product
+                    {
+                        Name = "Chocolate Bar",
+                        Description = "Nestle Crunch 50g",
+                        Quantity = 100,
+                        Price = 1.50m,
+                        CategoryId = food.CategoryId,
+                        SupplierId = nestle.SupplierId
+                    },
+                    new Product
+                    {
+                        Name = "Soccer Ball",
+                        Description = "FIFA-approved size 5",
+                        Quantity = 30,
+                        Price = 25,
+                        CategoryId = sports.CategoryId,
+                        SupplierId = adidas.SupplierId
+                    }
+                );
+                await context.SaveChangesAsync();
             }
         }
     }
