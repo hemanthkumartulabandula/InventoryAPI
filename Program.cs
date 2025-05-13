@@ -164,14 +164,26 @@ using (var scope = app.Services.CreateScope())
     
     var context = services.GetRequiredService<InventoryContext>();
     
-    await context.Database.MigrateAsync();
-    
+    var appliedMigrations = await context.Database.GetAppliedMigrationsAsync();
+    var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+
+    if (pendingMigrations.Any())
+    {
+        Console.WriteLine("📦 Applying EF Core migrations...");
+        await context.Database.MigrateAsync();
+        Console.WriteLine("✅ Migrations applied.");
+    }
+    else
+    {
+        Console.WriteLine("✔️ No pending migrations. Database is up-to-date.");
+    }
+
+
     if (!context.Products.Any())
     {
         await DataSeeder.SeedSampleDataAsync(context);
     }
 
-    
     await RoleSeeder.SeedRolesAndAdminAsync(services);
 }
 
